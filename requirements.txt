@@ -1,0 +1,26 @@
+# Główny silnik deep learning
+torch>=1.10.0
+torchvision>=0.11.0
+torchaudio>=0.10.0 # Standardowo dodajemy dla pełnego pakietu PyTorch
+
+# Operacje na danych (CSV, DataFrame)
+pandas>=1.3.0
+numpy>=1.21.0
+
+# Przetwarzanie wideo, detekcja twarzy, wyrównanie
+opencv-python>=4.5.5
+dlib>=19.24.2       # BIBLIOTEKA KLUCZOWA DO PUNKTÓW ORIENTACYJNYCH I WYRÓWNYWANIA
+imutils>=0.5.4      # NARZĘDZIA POMOCNICZE DLA Dlib/OpenCV
+mediapipe>=0.10.14
+
+# Narzędzia do uczenia maszynowego (podział danych, metryki)
+scikit-learn>=1.0.0
+
+# Pasek postępu
+tqdm>=4.62.3
+
+# Wizualizacja
+matplotlib>=3.5.0
+
+# SHAP - wyjaśnienia modeli
+shap>=0.44.0
