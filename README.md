@@ -30,6 +30,7 @@ pip install -r requirements.txt
 ```
 ### Project structure
 
+```bash
 automatic-pain-recognition/
 │
 ├── README.md
@@ -103,3 +104,4 @@ automatic-pain-recognition/
 │   └── test_processing_pipeline_mediapipe.py
 │
 └── .gitignore
+```
