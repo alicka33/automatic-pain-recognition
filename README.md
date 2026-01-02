@@ -1,73 +1,102 @@
-# automatic-pain-recognition
+# Automatic Pain Recognition
 Bachelor thesis: Automatic pain regonition with the use of computer vision algorithms 
 
-opis zamysłu projektu 
-opis jak uruchamiac 
-opis structury rozlozenia 
+This project focuses on automatic pain recognition from facial expressions using deep learning models trained on facial landmark sequences extracted from video data. The main goal is to investigate whether temporal patterns of facial movements can be effectively used to detect the presence and intensity of pain.
 
+The system supports multiple facial landmark detection pipelines (Dlib and MediaPipe), applies normalization and frontalization techniques, and trains sequential neural network models to perform binary and multi-class pain classification.
 
-data 
-    datasets
-        BioVid.md
-        RAVDESS.md
-    frontalization
+---
 
-    landmarks
-        top_100_
-data preparation
-    data_division
-        data_division_BioVid
-        data_division_RAVDESS
-    data_preparation
-        video into frames notebook 
-        face_detection_notebook 
-        point detection notebook (dlib and mediapipe)
-        frontalization notebook (dlib and mediapipe)
-        centering notebook
-        dlib_mediapipe_comparions
-        data_preparation_BIOVID
-        data_preparation_RAVDESS   
-    klasa z potokiem przetwarzania dlib
-    klasa z potokiem przetwarzania mediapipe
-    kalsa do przetworzenia danego zbioru danych który zostanie podany
-verification of processing pipeline_emotion_detection
-    veryfication of processed data notebooks
-        veryfication_of_processed_data_BioVId
-        veryfication_of_processed_data_Ravdess
-        avarge_movements_of_points_BIOVID
-        avargae_movements_of_points_RAVDESS
-    training_emotions
-        training_evaluation_478_points
-        training_evaluation_100_points
-        training_evaluation_478_movements
-        training_evaluation_100_movements
-        training_evaluation_100_movements_normalized
-models
-    BI-LSTM
-    Attention LSTM
-    Transformer
+## Project Overview
 
-pain_detection
-    training_notebooks
-        training_BiLSTM_bianry
-        training_BILSTM_multiclass
-        training_AttentionLSTM_bianry
-        training_AttentionLSTM_multiclass
-        training_Transformer_bianry
-        training_Transformer_multiclass
+The project is organized as a modular processing and training pipeline:
+1. Raw video recordings are processed to detect faces and extract facial landmarks.
+2. Landmark coordinates are normalized and optionally frontalized.
+3. Numerical feature sequences (e.g. Euclidean distances between landmarks) are generated.
+4. Deep learning models are trained on the extracted features to classify pain levels.
+5. Training and evaluation results are visualized and stored for further analysis.
 
-training_utils 
-    train.py
-    evaluate.py
-    preprocess_dataset.py
+Due to the large size of video data and intermediate artifacts, datasets and trained models are stored on Google Drive and loaded dynamically during experiments.
 
-mobile_app
-    cały kod apki mobilnej 
+---
 
-serwer_for_mobile_app_code
+## How to Run
 
-venv
-.gitignore
-README.md
-requirements.txt
-PDI.pdf
+### 1. Environment setup
+Install required dependencies:
+```bash
+pip install -r requirements.txt
+
+automatic-pain-recognition/
+│
+├── README.md
+├── requirements.txt
+│
+├── data/
+│   ├── datasets/
+│   │   ├── BioVid_HeatPain_Database.md
+│   │   └── RAVDESS_Database.md
+│   ├── landmarks/
+│   └── frontalization/
+│
+├── data_preparation/
+│   ├── process_dataset.py
+│   ├── processing_pipeline_dlib.py
+│   ├── processing_pipeline_mediapipe.py
+│   │
+│   ├── data_division/
+│   │   ├── data_division_BioVid_HeatPain.ipynb
+│   │   ├── data_division_BioVid_HeatPain.py
+│   │   ├── data_division_RAVDESS.ipynb
+│   │   └── data_division_RAVDESS.py
+│   │
+│   └── data_preparation/
+│       ├── centering.ipynb
+│       ├── data_preparation_BioVid_HeatPain.ipynb
+│       ├── data_preparation_RAVDESS.ipynb
+│       ├── dlib_mediapipe_comparison.ipynb
+│       ├── face_detection.ipynb
+│       ├── frontalization.ipynb
+│       ├── landmark_detection.ipynb
+│       └── video_to_frames.ipynb
+│
+├── models/
+│   ├── Attention_LSTM.py
+│   ├── Bi_LSTM.py
+│   └── Transformer.py
+│
+├── training_utils/
+│   ├── train.py
+│   ├── evaluate.py
+│   └── preprocessed_dataset.py
+│
+├── pain_detection/
+│   ├── training_pain.py
+│   ├── evaluation_pain.py
+│   │
+│   └── training_pain/
+│       ├── training_Attention_LSTM_binary.py
+│       ├── training_Attention_LSTM_multiclass.py
+│       ├── training_Bi_LSTM_binary.py
+│       ├── training_Bi_LSTM_multiclass.py
+│       ├── training_Transformer_binary.py
+│       └── training_Transformer_multiclass.py
+│
+├── processing_pipeline_verification_on_emotions/
+│   └── processed_data_verification/
+│       ├── evaluation_emotion.py
+│       ├── training_emotion.py
+│       ├── average_landmark_movement_BioVid_HeatPain.ipynb
+│       ├── average_landmark_movement_RAVDESS.ipynb
+│       ├── landmark_verification_BioVid_HeatPain.ipynb
+│       └── landmark_verification_RAVDESS.ipynb
+│
+├── pain_detection_app/
+│
+├── pain_detection_app_server/
+│
+├── tests/
+│   ├── test_processing_pipeline_dlib.py
+│   └── test_processing_pipeline_mediapipe.py
+│
+└── .gitignore
