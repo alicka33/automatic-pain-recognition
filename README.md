@@ -1,5 +1,5 @@
 # Automatic Pain Recognition
-Bachelor thesis: Automatic pain regonition with the use of computer vision algorithms 
+**Bachelor thesis: Automatic pain recognition with the use of computer vision algorithms**
 
 This project focuses on automatic pain recognition from facial expressions using deep learning models trained on facial landmark sequences extracted from video data. The main goal is to investigate whether temporal patterns of facial movements can be effectively used to detect the presence and intensity of pain.
 
@@ -22,10 +22,13 @@ Due to the large size of video data and intermediate artifacts, datasets and tra
 
 ## How to Run
 
-### 1. Environment setup
+### Environment setup
 Install required dependencies:
 ```bash
 pip install -r requirements.txt
+
+```
+### Project structure
 
 automatic-pain-recognition/
 │
