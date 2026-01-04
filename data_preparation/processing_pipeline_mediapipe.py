@@ -137,11 +137,16 @@ def visualize_frontalized_points(keypoints: np.ndarray, output_size: Tuple[int, 
     if np.any(range_coords == 0):
         range_coords = np.maximum(range_coords, 1e-6)
     scale = (output_size[0] - 2 * margin) / np.max(range_coords)
+
+    # Center the points on the canvas
+    center_offset = np.array([(output_size[0] - margin * 2) / 2, (output_size[1] - margin * 2) / 2])
+    center_keypoints = (max_coords + min_coords) / 2
+
     for x, y, _ in keypoints:
-        px = int((x - min_coords[0]) * scale) + margin
-        py = int((y - min_coords[1]) * scale) + margin
+        px = int((x - center_keypoints[0]) * scale) + output_size[0] // 2
+        py = int((y - center_keypoints[1]) * scale) + output_size[1] // 2
         if 0 <= px < output_size[0] and 0 <= py < output_size[1]:
-            cv2.circle(canvas, (px, py), 4, (0, 255, 0), -1)
+            cv2.circle(canvas, (px, py), 2, (0, 255, 0), -1)
 
     # Draw grid lines thicker
     cv2.line(canvas, (margin, margin), (output_size[0] - margin, margin), (200, 200, 200), 2)
