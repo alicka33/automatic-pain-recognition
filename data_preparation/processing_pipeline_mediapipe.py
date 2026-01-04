@@ -5,9 +5,6 @@ import os
 from pathlib import Path
 from typing import Optional, Tuple, List
 
-import mediapipe as mp
-from mediapipe.solutions import face_mesh as mp_face_mesh
-
 # Constants (adapt as needed)
 REFERENCE_POINT_INDEX = 2
 NUM_LANDMARKS = 478
@@ -39,6 +36,12 @@ def create_face_mesh(refine_landmarks: bool = True, max_num_faces: int = 1,
     """
     Create a MediaPipe FaceMesh instance.
     """
+    try:
+        import mediapipe as mp
+        mp_face_mesh = mp.solutions.face_mesh
+    except ImportError as e:
+        raise ImportError("MediaPipe is not installed. Please install it with: pip install mediapipe") from e
+
     return mp_face_mesh.FaceMesh(
         static_image_mode=False,
         refine_landmarks=refine_landmarks,
