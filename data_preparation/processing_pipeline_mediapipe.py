@@ -1,10 +1,12 @@
 import cv2
 import numpy as np
-import mediapipe as mp
 import matplotlib.pyplot as plt
 import os
 from pathlib import Path
 from typing import Optional, Tuple, List
+
+import mediapipe as mp
+from mediapipe.solutions import face_mesh as mp_face_mesh
 
 # Constants (adapt as needed)
 REFERENCE_POINT_INDEX = 2
@@ -37,7 +39,6 @@ def create_face_mesh(refine_landmarks: bool = True, max_num_faces: int = 1,
     """
     Create a MediaPipe FaceMesh instance.
     """
-    mp_face_mesh = mp.solutions.face_mesh
     return mp_face_mesh.FaceMesh(
         static_image_mode=False,
         refine_landmarks=refine_landmarks,
