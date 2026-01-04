@@ -121,7 +121,7 @@ def visualize_raw_detection(frame_bgr: np.ndarray, landmarks_list, reference_ind
     ys = [lm.y * h for lm in landmarks_list]
     x_min, x_max = int(min(xs)), int(max(xs))
     y_min, y_max = int(min(ys)), int(max(ys))
-    cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (255, 0, 0), 2)
+    cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
     # Draw all landmarks
     for lm in landmarks_list:
