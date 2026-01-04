@@ -199,7 +199,7 @@ def _visualize_frame(frame_bgr: np.ndarray, raw: np.ndarray, frontal: Optional[n
     img_raw = frame_bgr.copy()
     if rect:
         x, y, w, h = rect
-        cv2.rectangle(img_raw, (x, y), (x+w, y+h), (0, 255, 0), 1)
+        cv2.rectangle(img_raw, (x, y), (x+w, y+h), (0, 255, 0), 3)
     for (px, py) in raw.astype(int):
         cv2.circle(img_raw, (px, py), 4, (0, 255, 0), -1)
     axes[0].imshow(cv2.cvtColor(img_raw, cv2.COLOR_BGR2RGB)); axes[0].axis('off'); axes[0].set_title('Raw Landmarks')
@@ -213,7 +213,7 @@ def _visualize_frame(frame_bgr: np.ndarray, raw: np.ndarray, frontal: Optional[n
         coords = (frontal * scale) + (target_size // 2)
         for (px, py) in coords.astype(int):
             if 0 <= px < target_size and 0 <= py < target_size:
-                cv2.circle(display, (px, py), 4, (0, 255, 0), -1)
+                cv2.circle(display, (px, py), 2, (0, 255, 0), -1)
         axes[1].imshow(cv2.cvtColor(display, cv2.COLOR_BGR2RGB)); axes[1].axis('off'); axes[1].set_title('Frontalized Points')
     else:
         axes[1].axis('off'); axes[1].set_title('No frontalization available')
