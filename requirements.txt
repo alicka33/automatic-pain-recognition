@@ -11,7 +11,7 @@ numpy>=1.21.0
 opencv-python>=4.5.5
 dlib>=19.24.2       # BIBLIOTEKA KLUCZOWA DO PUNKTÓW ORIENTACYJNYCH I WYRÓWNYWANIA
 imutils>=0.5.4      # NARZĘDZIA POMOCNICZE DLA Dlib/OpenCV
-mediapipe>=0.10.14
+mediapipe>=0.10.15
 
 # Narzędzia do uczenia maszynowego (podział danych, metryki)
 scikit-learn>=1.0.0
