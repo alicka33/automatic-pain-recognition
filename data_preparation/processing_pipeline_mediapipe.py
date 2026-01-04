@@ -120,10 +120,10 @@ def visualize_raw_detection(frame_bgr: np.ndarray, landmarks_list, reference_ind
     img = frame_bgr.copy()
     for lm in landmarks_list:
         cx, cy = int(lm.x * w), int(lm.y * h)
-        cv2.circle(img, (cx, cy), 2, (0, 255, 0), -1)
+        cv2.circle(img, (cx, cy), 4, (0, 255, 0), -1)
     ref_lm = landmarks_list[reference_index]
     rcx, rcy = int(ref_lm.x * w), int(ref_lm.y * h)
-    cv2.circle(img, (rcx, rcy), 5, (255, 0, 0), -1)
+    cv2.circle(img, (rcx, rcy), 6, (0, 255, 0), -1)
     plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     plt.axis('off')
     plt.show()
@@ -144,7 +144,13 @@ def visualize_frontalized_points(keypoints: np.ndarray, output_size: Tuple[int, 
         px = int((x - min_coords[0]) * scale) + margin
         py = int((y - min_coords[1]) * scale) + margin
         if 0 <= px < output_size[0] and 0 <= py < output_size[1]:
-            cv2.circle(canvas, (px, py), 2, (0, 255, 0), -1)
+            cv2.circle(canvas, (px, py), 4, (0, 255, 0), -1)
+
+    # Draw grid lines thicker
+    cv2.line(canvas, (margin, margin), (output_size[0] - margin, margin), (200, 200, 200), 2)
+    cv2.line(canvas, (output_size[0] - margin, margin), (output_size[0] - margin, output_size[1] - margin), (200, 200, 200), 2)
+    cv2.line(canvas, (output_size[0] - margin, output_size[1] - margin), (margin, output_size[1] - margin), (200, 200, 200), 2)
+    cv2.line(canvas, (margin, output_size[1] - margin), (margin, margin), (200, 200, 200), 2)
     plt.imshow(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
     plt.axis('off')
     plt.show()
