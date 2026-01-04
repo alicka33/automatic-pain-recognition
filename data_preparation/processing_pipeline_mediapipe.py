@@ -111,24 +111,35 @@ def keypoints_to_feature_vector(centered_keypoints: np.ndarray) -> np.ndarray:
 
 def visualize_raw_detection(frame_bgr: np.ndarray, landmarks_list, reference_index: int = REFERENCE_POINT_INDEX):
     """
-    Draw raw MediaPipe landmarks and the reference point on the frame and show it.
+    Draw raw MediaPipe landmarks, face detection rectangle, and the reference point on the frame and show it.
     """
     h, w, _ = frame_bgr.shape
     img = frame_bgr.copy()
+
+    # Draw face detection bounding box
+    xs = [lm.x * w for lm in landmarks_list]
+    ys = [lm.y * h for lm in landmarks_list]
+    x_min, x_max = int(min(xs)), int(max(xs))
+    y_min, y_max = int(min(ys)), int(max(ys))
+    cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (255, 0, 0), 2)
+
+    # Draw all landmarks
     for lm in landmarks_list:
         cx, cy = int(lm.x * w), int(lm.y * h)
         cv2.circle(img, (cx, cy), 4, (0, 255, 0), -1)
+
+    # Mark reference point
     ref_lm = landmarks_list[reference_index]
     rcx, rcy = int(ref_lm.x * w), int(ref_lm.y * h)
     cv2.circle(img, (rcx, rcy), 6, (0, 255, 0), -1)
-    plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    plt.axis('off')
-    plt.show()
+
+    return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 
 def visualize_frontalized_points(keypoints: np.ndarray, output_size: Tuple[int, int] = FRONTALIZATION_OUTPUT_SIZE, margin: int = 10):
     """
     Render frontalized 3D keypoints as a 2D scatter image (project X,Y).
+    Returns the image for display.
     """
     canvas = np.ones((output_size[0], output_size[1], 3), dtype=np.uint8) * 255
     min_coords = keypoints[:, :2].min(axis=0)
@@ -153,9 +164,32 @@ def visualize_frontalized_points(keypoints: np.ndarray, output_size: Tuple[int, 
     cv2.line(canvas, (output_size[0] - margin, margin), (output_size[0] - margin, output_size[1] - margin), (200, 200, 200), 2)
     cv2.line(canvas, (output_size[0] - margin, output_size[1] - margin), (margin, output_size[1] - margin), (200, 200, 200), 2)
     cv2.line(canvas, (margin, output_size[1] - margin), (margin, margin), (200, 200, 200), 2)
-    plt.imshow(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB))
-    plt.axis('off')
-    plt.show()
+
+    return cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB)
+
+
+def visualize_detections_side_by_side(frame_bgr: np.ndarray, landmarks_list, processed_keypoints: np.ndarray, reference_index: int = REFERENCE_POINT_INDEX):
+    """
+    Display raw detection and frontalized points side by side.
+    """
+    # Get raw detection image with bounding box
+    raw_img = visualize_raw_detection(frame_bgr, landmarks_list, reference_index)
+
+    # Get frontalized image
+    frontal_img = visualize_frontalized_points(processed_keypoints)
+
+    # Display side by side
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+
+    axes[0].imshow(raw_img)
+    axes[0].set_title('Raw Detection (478 landmarks + Face Box)', fontsize=12, fontweight='bold')
+    axes[0].axis('off')
+
+    axes[1].imshow(frontal_img)
+    axes[1].set_title('Frontalized Points (Centered)', fontsize=12, fontweight='bold')
+    axes[1].axis('off')
+
+    plt.tight_layout()
 
 
 def process_frame(frame_bgr: np.ndarray, face_mesh, reference_keypoints_3d: Optional[np.ndarray] = None,
@@ -228,8 +262,7 @@ def video_to_feature_sequences(video_path: str, frame_skip: int = 3,
                 # We call face_mesh.process again for the raw landmarks for display purposes
                 results = face_mesh.process(cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB))
                 if results and results.multi_face_landmarks:
-                    visualize_raw_detection(frame_bgr, results.multi_face_landmarks[0].landmark, REFERENCE_POINT_INDEX)
-                visualize_frontalized_points(processed_keypoints, FRONTALIZATION_OUTPUT_SIZE)
+                    visualize_detections_side_by_side(frame_bgr, results.multi_face_landmarks[0].landmark, processed_keypoints, REFERENCE_POINT_INDEX)
                 visualization_done = True
 
         frame_count += 1
