@@ -20,14 +20,22 @@ Due to the large size of video data and intermediate artifacts, datasets and tra
 
 ---
 
-## How to Run
+## Environment Setup
 
-### Environment setup
-Install required dependencies:
-```bash
-pip install -r requirements.txt
+All experiments were designed to be executed in the Google Colab environment.
+To begin, open the appropriate notebook in Google Colab and run the cells sequentially as provided.
 
-```
+If the notebook requires additional environment configuration (e.g., access to Google Drive, repository cloning, or installation of required libraries), all necessary steps are explicitly specified within the notebook itself. These steps typically include:
+
+mounting Google Drive to access the dataset,
+
+cloning the project repository,
+
+installing dependencies from the requirements.txt file.
+
+No additional manual configuration is required from the user beyond executing the code in the notebook cells.
+
+
 ### Project structure
 
 ```bash
