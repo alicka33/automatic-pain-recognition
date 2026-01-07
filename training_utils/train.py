@@ -230,7 +230,7 @@ class Trainer:
         plt.plot(epochs, self.history['val_acc'], label='val_acc')
         plt.xlabel('Epoch')
         plt.ylabel('Accuracy')
-        plt.ylim(0.0, 1.0)
+        # plt.ylim(0.0, 1.0)
         plt.legend()
         plt.title('Accuracy')
 
