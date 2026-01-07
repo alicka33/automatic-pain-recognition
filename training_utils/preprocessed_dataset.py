@@ -130,14 +130,13 @@ class PreprocessedDataset(Dataset):
 
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
-        npy_path = Path(row['npy_path'])
-        # If stored path is relative, try to resolve in npy_folder; otherwise use absolute
-        if not npy_path.is_absolute():
-            npy_full = self.npy_folder / npy_path
-        else:
-            npy_full = npy_path
+        npy_path_str = row['npy_path']
 
-        seq = self._load_npy(npy_full)  # (T, F_full) or (T, F)
+        # If stored path is relative, try to resolve in npy_folder; otherwise use absolute
+        npy_filename = Path(npy_path_str).name
+        npy_full = self.npy_folder / npy_filename
+
+        seq = self._load_npy(npy_full)   # (T, F_full) or (T, F)
 
         if self.compute_euclidean:
             features = self._compute_euclidean(seq)  # (T, N_points)
