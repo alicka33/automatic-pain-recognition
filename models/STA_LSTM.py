@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as fun
+import torch.nn.functional as F
 
 
 class STA_LSTM(nn.Module):
@@ -8,7 +8,7 @@ class STA_LSTM(nn.Module):
         super(STA_LSTM, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        self.num_directions = 2  # dla Bi-LSTM
+        self.num_directions = 2  # Bi-LSTM
 
         # Bi-LSTM
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers,
@@ -16,35 +16,51 @@ class STA_LSTM(nn.Module):
                             dropout=dropout_prob,
                             bidirectional=True)
 
-        # Spatial Attention
-        self.spatial_attn = nn.Linear(input_size, input_size)  # α_t dla cech
+        # Layer Normalization after LSTM
+        self.layer_norm = nn.LayerNorm(hidden_size * self.num_directions)
 
-        # Temporal Attention
-        self.temporal_attn = nn.Linear(hidden_size * self.num_directions, 1)  # β_t dla klatek
+        # Spatial Attention: learns which features are important
+        # Input: (B, T, H*2) → Output: (B, T, 1) for each frame
+        self.spatial_attn = nn.Sequential(
+            nn.Linear(hidden_size * self.num_directions, hidden_size),
+            nn.Tanh(),
+            nn.Linear(hidden_size, input_size)  # Attention weight per input feature
+        )
+
+        # Temporal Attention: learns which frames are important
+        # Input: (B, T, H*2) → Output: (B, T, 1) for each frame
+        self.temporal_attn = nn.Sequential(
+            nn.Linear(hidden_size * self.num_directions, hidden_size),
+            nn.Tanh(),
+            nn.Linear(hidden_size, 1)  # Single weight per frame
+        )
 
         self.dropout = nn.Dropout(dropout_prob)
         self.fc = nn.Linear(hidden_size * self.num_directions, num_classes)
 
     def forward(self, x):
-        # x: (B, T, F)
+        # x: (B, T, F) where F = input_size
         B, T, F = x.size()
 
-        # --- Spatial Attention ---
-        # Obliczamy wagi α_t dla każdej cechy
-        # α_t = softmax(W_s * x_t)
-        spatial_weights = fun.softmax(self.spatial_attn(x), dim=2)  # (B, T, F)
-        x_weighted = x * spatial_weights  # ważone punkty
-
         # --- Bi-LSTM ---
-        lstm_out, _ = self.lstm(x_weighted)  # (B, T, hidden*2)
+        lstm_out, _ = self.lstm(x)  # (B, T, H*2)
+        lstm_out = self.layer_norm(lstm_out)
 
-        # --- Temporal Attention ---
-        # Obliczamy wagi β dla każdej klatki
-        # β_t = softmax(W_t * h_t)
-        beta = fun.softmax(self.temporal_attn(lstm_out), dim=1)  # (B, T, 1)
-        context = torch.sum(lstm_out * beta, dim=1)  # (B, hidden*2)
+        # --- Spatial Attention (on input features) ---
+        # Learn which of the F input features are important
+        spatial_logits = self.spatial_attn(lstm_out)  # (B, T, F)
+        spatial_weights = F.softmax(spatial_logits, dim=2)  # Softmax over features (dim 2)
+        x_attended = x * spatial_weights  # Weight the original input features
 
-        # Dropout i klasyfikacja
+        # --- Temporal Attention (on frames) ---
+        # Learn which of the T frames are important
+        temporal_logits = self.temporal_attn(lstm_out)  # (B, T, 1)
+        temporal_weights = F.softmax(temporal_logits, dim=1)  # Softmax over time (dim 1)
+
+        # Aggregate using temporal attention weights
+        context = torch.sum(lstm_out * temporal_weights, dim=1)  # (B, H*2)
+
+        # --- Classification ---
         context = self.dropout(context)
         output = self.fc(context)  # (B, num_classes)
 
