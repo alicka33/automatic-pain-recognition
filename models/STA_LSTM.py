@@ -29,7 +29,7 @@ class STA_LSTM(nn.Module):
 
     def forward(self, x):
         # x: (B, T, F) where F = input_size
-        B, T, F = x.size()
+        B, T, feat_dim = x.size()
 
         # 1. Bi-LSTM
         lstm_out, _ = self.lstm(x)  # (B, T, H*2)
@@ -37,8 +37,8 @@ class STA_LSTM(nn.Module):
 
         # 2. Temporal Attention - learn which frames matter
         temporal_logits = self.temporal_attn(lstm_out)  # (B, T, 1)
-        temporal_weights = F.softmax(temporal_logits, dim=1)  # (B, T, 1)
-        
+        temporal_weights = torch.softmax(temporal_logits, dim=1)
+
         # 3. Weighted aggregation across time
         context = torch.sum(lstm_out * temporal_weights, dim=1)  # (B, H*2)
 
