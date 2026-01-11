@@ -39,29 +39,26 @@ class STA_LSTM(nn.Module):
         self.fc = nn.Linear(hidden_size * self.num_directions, num_classes)
 
     def forward(self, x):
-        # x: (B, T, F) where F = input_size
         B, T, F = x.size()
 
-        # --- Bi-LSTM ---
-        lstm_out, _ = self.lstm(x)  # (B, T, H*2)
+        # 1. Spatial Attention - musimy najpierw wiedzieć co jest ważne w x
+        # Używamy prostszej sieci do oceny cech przed LSTM lub 
+        # używamy atencji na wejściu (tzw. Input Attention)
+        spatial_logits = self.spatial_attn(x.view(B*T, F)) # (B*T, F)
+        spatial_weights = torch.sigmoid(spatial_logits).view(B, T, F)
+        x_attended = x * spatial_weights 
+
+        # 2. Bi-LSTM - teraz wrzucamy WAŻONE cechy
+        lstm_out, _ = self.lstm(x_attended) 
         lstm_out = self.layer_norm(lstm_out)
 
-        # --- Spatial Attention (on input features) ---
-        # Learn which of the F input features are important
-        spatial_logits = self.spatial_attn(lstm_out)  # (B, T, F)
-        spatial_weights = F.softmax(spatial_logits, dim=2)  # Softmax over features (dim 2)
-        x_attended = x * spatial_weights  # Weight the original input features
+        # 3. Temporal Attention - na podstawie wyjścia z LSTM
+        temporal_logits = self.temporal_attn(lstm_out) # (B, T, 1)
+        temporal_weights = F.softmax(temporal_logits, dim=1) 
 
-        # --- Temporal Attention (on frames) ---
-        # Learn which of the T frames are important
-        temporal_logits = self.temporal_attn(lstm_out)  # (B, T, 1)
-        temporal_weights = F.softmax(temporal_logits, dim=1)  # Softmax over time (dim 1)
+        # 4. Agregacja
+        context = torch.sum(lstm_out * temporal_weights, dim=1) 
 
-        # Aggregate using temporal attention weights
-        context = torch.sum(lstm_out * temporal_weights, dim=1)  # (B, H*2)
-
-        # --- Classification ---
+        # 5. Klasyfikacja
         context = self.dropout(context)
-        output = self.fc(context)  # (B, num_classes)
-
-        return output
+        return self.fc(context)
