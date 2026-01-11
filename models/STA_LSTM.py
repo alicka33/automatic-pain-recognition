@@ -49,24 +49,27 @@ class STA_LSTM(nn.Module):
         self.fc = nn.Linear(hidden_size * self.num_directions, num_classes)
 
     def forward(self, x):
-        # x: (B, T, F)
         B, T, F_dim = x.size()
 
-        # Spatial attention on inputs
-        spatial_logits = self.spatial_attn(x)              # (B, T, F)
-        spatial_weights = F.softmax(spatial_logits, dim=2) # softmax over features
-        x_weighted = x * spatial_weights                   # reweighted features
+        # Spatial attention: Używamy Sigmoid zamiast Softmax, aby nie tłumić sygnału
+        spatial_logits = self.spatial_attn(x)                
+        spatial_weights = torch.sigmoid(spatial_logits)      # Wagi 0-1 dla każdej cechy
+        
+        # Połączenie rezydualne (Skip Connection) - kluczowe dla stabilności!
+        x_weighted = x * (1 + spatial_weights)
 
         # Bi-LSTM
-        lstm_out, _ = self.lstm(x_weighted)                # (B, T, H*2)
+        lstm_out, _ = self.lstm(x_weighted)                
         lstm_out = self.ln_lstm(lstm_out)
 
-        # Temporal attention with padding mask (assumes padded frames are all zeros)
-        temporal_logits = self.temporal_attn(lstm_out)     # (B, T, 1)
-        frame_mask = (x.abs().sum(dim=2) == 0)             # (B, T)
-        temporal_logits = temporal_logits.masked_fill(frame_mask.unsqueeze(2), -1e9)
-        temporal_weights = F.softmax(temporal_logits, dim=1)  # softmax over time
+        # Temporal attention
+        temporal_logits = self.temporal_attn(lstm_out)      
 
-        context = torch.sum(lstm_out * temporal_weights, dim=1)  # (B, H*2)
+        # Upewnij się, że frame_mask działa (jeśli nie masz paddingu, usuń to)
+        # temporal_logits = temporal_logits.masked_fill(frame_mask.unsqueeze(2), -1e9)
+
+        temporal_weights = F.softmax(temporal_logits, dim=1)  
+
+        context = torch.sum(lstm_out * temporal_weights, dim=1)  
         context = self.dropout(context)
-        return self.fc(context)                             # (B, num_classes)
+        return self.fc(context)                          # (B, num_classes)
