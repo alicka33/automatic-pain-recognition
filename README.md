@@ -58,9 +58,7 @@ automatic-pain-recognition/
 │   │
 │   ├── data_division/
 │   │   ├── data_division_BioVid_HeatPain.ipynb
-│   │   ├── data_division_BioVid_HeatPain.py
-│   │   ├── data_division_RAVDESS.ipynb
-│   │   └── data_division_RAVDESS.py
+│   │   └── data_division_RAVDESS.ipynb
 │   │
 │   └── data_preparation/
 │       ├── centering.ipynb
@@ -69,13 +67,14 @@ automatic-pain-recognition/
 │       ├── dlib_mediapipe_comparison.ipynb
 │       ├── face_detection.ipynb
 │       ├── frontalization.ipynb
-│       ├── landmark_detection.ipynb
-│       └── video_to_frames.ipynb
+│       ├── video_to_frames.ipynb
+│       └── video_to_landmarks_full_pipeline.ipynb
 │
 ├── models/
 │   ├── Attention_LSTM.py
 │   ├── Bi_LSTM.py
-│   └── Transformer.py
+│   ├── Emotion_Conv_LSTM.py
+│   └── STA_LSTM.py
 │
 ├── training_utils/
 │   ├── train.py
@@ -83,33 +82,43 @@ automatic-pain-recognition/
 │   └── preprocessed_dataset.py
 │
 ├── pain_detection/
-│   ├── training_pain.py
-│   ├── evaluation_pain.py
+│   ├── analyse_data/
+│   │   ├── average_landmark_movement_BioVid_HeatPain.ipynb
+│   │   └── landmark_verification_BioVid_HeatPain.ipynb
 │   │
 │   └── training_pain/
-│       ├── training_Attention_LSTM_binary.py
-│       ├── training_Attention_LSTM_multiclass.py
-│       ├── training_Bi_LSTM_binary.py
-│       ├── training_Bi_LSTM_multiclass.py
-│       ├── training_Transformer_binary.py
-│       └── training_Transformer_multiclass.py
+│       ├── training_Attention_LSTM_binary.ipynb
+│       ├── training_Attention_LSTM_binary_1434_coord.ipynb
+│       ├── training_Attention_LSTM_binary_300_coord.ipynb
+│       ├── training_Attention_LSTM_multiclass.ipynb
+│       ├── training_Attention_LSTM_multiclass_1434_coord.ipynb
+│       ├── training_Attention_LSTM_multiclass_300_coord.ipynb
+│       ├── training_Bi_LSTM_binary.ipynb
+│       ├── training_Bi_LSTM_binary_1434_coord.ipynb
+│       ├── training_Bi_LSTM_binary_300_coord.ipynb
+│       ├── training_Bi_LSTM_multiclass.ipynb
+│       ├── training_Bi_LSTM_multiclass_1434_coord.ipynb
+│       ├── training_Bi_LSTM_multiclass_300_coord.ipynb
+│       ├── training_STA_LSTM_binary.ipynb
+│       ├── training_STA_LSTM_binary_1434_coord.ipynb
+│       ├── training_STA_LSTM_binary_300_coord.ipynb
+│       ├── training_STA_LSTM_multiclass.ipynb
+│       ├── training_STA_LSTM_multiclass_1434_coord.ipynb
+│       └── training_STA_LSTM_multiclass_300_coord.ipynb
 │
 ├── processing_pipeline_verification_on_emotions/
-│   └── processed_data_verification/
-│       ├── evaluation_emotion.py
-│       ├── training_emotion.py
-│       ├── average_landmark_movement_BioVid_HeatPain.ipynb
-│       ├── average_landmark_movement_RAVDESS.ipynb
-│       ├── landmark_verification_BioVid_HeatPain.ipynb
-│       └── landmark_verification_RAVDESS.ipynb
+│   ├── processed_data_verification/
+│   └── training_emotion/
 │
 ├── pain_detection_app/
 │
 ├── pain_detection_app_server/
 │
 ├── tests/
-│   ├── test_processing_pipeline_dlib.py
-│   └── test_processing_pipeline_mediapipe.py
+│   ├── test_process_dataset_colab.ipynb
+│   ├── test_processing_pipeline_dlib_colab.ipynb
+│   ├── test_processing_pipeline_mediapipe_colab.ipynb
+│   └── test_training_utils_colab.ipynb
 │
 └── .gitignore
 ```
