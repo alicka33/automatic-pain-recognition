@@ -25,15 +25,32 @@ Due to the large size of video data and intermediate artifacts, datasets and tra
 All experiments were designed to be executed in the Google Colab environment.
 To begin, open the appropriate notebook in Google Colab and run the cells sequentially as provided.
 
-If the notebook requires additional environment configuration (e.g., access to Google Drive, repository cloning, or installation of required libraries), all necessary steps are explicitly specified within the notebook itself. These steps typically include:
+### Common Setup Steps
 
-mounting Google Drive to access the dataset,
+The following code snippets demonstrate the typical setup required in each notebook:
 
-cloning the project repository,
+#### 1. Mount Google Drive to Access the Dataset
+```python
+from google.colab import drive
+drive.mount('/content/drive')
+```
 
-installing dependencies from the requirements.txt file.
+#### 2. Clone the Project Repository
+```python
+import os
+os.chdir('/content/drive/My Drive')
+!git clone https://github.com/jonczyk/automatic-pain-recognition.git
+os.chdir('/content/drive/My Drive/automatic-pain-recognition')
+```
 
-No additional manual configuration is required from the user beyond executing the code in the notebook cells.
+#### 3. Install Dependencies
+```python
+!pip install -r requirements.txt
+```
+
+### Notes
+
+If the notebook requires additional environment configuration (e.g., access to Google Drive, repository cloning, or installation of required libraries), all necessary steps are explicitly specified within the notebook itself. No additional manual configuration is required from the user beyond executing the code in the notebook cells.
 
 
 ### Project structure
