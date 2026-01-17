@@ -10,9 +10,6 @@ import matplotlib.pyplot as plt
 from imutils.face_utils import FaceAligner, rect_to_bb
 
 
-# -----------------------------
-# Initialization / loaders
-# -----------------------------
 def init_dlib(predictor_path: str, mean_face_path: Optional[str] = None, weights_path: Optional[str] = None,
               desired_face_size: int = 128) -> Dict:
     """
@@ -28,7 +25,6 @@ def init_dlib(predictor_path: str, mean_face_path: Optional[str] = None, weights
     except Exception as e:
         raise FileNotFoundError(f"Failed to load dlib predictor or init FaceAligner: {predictor_path}") from e
 
-    # load optional resources
     try:
         ctx['canonical_reference'] = np.load(str(mean_face_path)).astype(np.float32) if mean_face_path else None
     except Exception:
@@ -42,9 +38,6 @@ def init_dlib(predictor_path: str, mean_face_path: Optional[str] = None, weights
     return ctx
 
 
-# -----------------------------
-# Basic conversions & helpers
-# -----------------------------
 def landmark_obj_to_array(landmarks_dlib_obj) -> np.ndarray:
     arr = np.zeros((68, 2), dtype=np.float32)
     for i in range(68):
@@ -64,9 +57,6 @@ def get_eye_centers(landmarks: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     return left, right
 
 
-# -----------------------------
-# Procrustes-like normalization
-# -----------------------------
 def procrustes_normalize(landmarks: np.ndarray, template: Optional[np.ndarray] = None) -> np.ndarray:
     L = landmarks.copy().astype(np.float32)
     L -= L.mean(axis=0)
@@ -81,24 +71,16 @@ def procrustes_normalize(landmarks: np.ndarray, template: Optional[np.ndarray] =
     L = L.dot(R.T)
     t = template
     if t is not None:
-        # mouth
         anchor_t = t[50:53].mean(axis=0); anchor_l = L[50:53].mean(axis=0); L[48:] += (anchor_t - anchor_l)
-        # right eye + eyebrow
         anchor_t = t[42:48].mean(axis=0); anchor_l = L[42:48].mean(axis=0); disp = anchor_t - anchor_l
         L[42:48] += disp; L[22:27] += disp
-        # left eye + eyebrow
         anchor_t = t[36:42].mean(axis=0); anchor_l = L[36:42].mean(axis=0); disp = anchor_t - anchor_l
         L[36:42] += disp; L[17:22] += disp
-        # nose
         anchor_t = t[27:36].mean(axis=0); anchor_l = L[27:36].mean(axis=0); L[27:36] += (anchor_t - anchor_l)
-        # jaw
         anchor_t = t[:17].mean(axis=0); anchor_l = L[:17].mean(axis=0); L[:17] += (anchor_t - anchor_l)
     return L
 
 
-# -----------------------------
-# Frontalization & vectorization
-# -----------------------------
 def frontalize_landmarks(landmarks_dlib_obj, frontalization_weights: Optional[np.ndarray],
                          canonical_reference: Optional[np.ndarray]) -> Optional[np.ndarray]:
     if frontalization_weights is None:
@@ -120,9 +102,6 @@ def center_by_reference(coords: np.ndarray, ref_index: int = 33) -> Tuple[np.nda
     return centered, ref
 
 
-# -----------------------------
-# Frame & video processing
-# -----------------------------
 def process_frame(frame_bgr: np.ndarray, detector, predictor, aligner=None,
                   frontalization_weights: Optional[np.ndarray] = None,
                   canonical_reference: Optional[np.ndarray] = None,
@@ -190,9 +169,6 @@ def video_to_landmark_vectors(video_path: str, detector, predictor, aligner=None
     return seq
 
 
-# -----------------------------
-# Visualization helper
-# -----------------------------
 def _visualize_frame(frame_bgr: np.ndarray, raw: np.ndarray, frontal: Optional[np.ndarray], rect: Optional[Tuple[int,int,int,int]] = None):
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))
     # raw overlay
@@ -203,7 +179,6 @@ def _visualize_frame(frame_bgr: np.ndarray, raw: np.ndarray, frontal: Optional[n
     for (px, py) in raw.astype(int):
         cv2.circle(img_raw, (px, py), 4, (0, 255, 0), -1)
     axes[0].imshow(cv2.cvtColor(img_raw, cv2.COLOR_BGR2RGB)); axes[0].axis('off'); axes[0].set_title('Raw Landmarks')
-    # frontal visualization
     if frontal is not None:
         target_size = 256
         display = np.ones((target_size, target_size, 3), dtype=np.uint8) * 255

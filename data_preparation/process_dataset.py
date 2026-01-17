@@ -11,17 +11,13 @@ import os
 
 @dataclass
 class ProcessingConfig:
-    # Base drive/root
     colab_root: str = '/content/drive/MyDrive/PainRecognitionProject/'
 
-    # Dataset specific subfolders (relative to colab_root)
     dataset_subdir: str = 'data/BioVid_HeatPain/'
     processed_subdir: str = 'data/BioVid_HeatPain_processed_478_xyz_frontalized/'
 
-    # Local temp/cache folder
     local_cache_dir: str = '/content/temp_cache'
 
-    # Sequence and features
     max_sequence_length: int = 46
     feature_dim: int = 478 * 3  # default 1434
 
@@ -93,7 +89,6 @@ def process_single_video_row(
 
     try:
         local_temp_path = copy_to_local_cache(drive_video_path, local_cache_dir)
-        # video_processor should return list of frame feature vectors (ndarray per frame)
         frames = video_processor(video_path=local_temp_path, frame_skip=frame_skip, visualize=visualize)
         if frames:
             sequence = np.stack(frames)
@@ -102,7 +97,6 @@ def process_single_video_row(
 
         final_seq = pad_or_truncate_sequence(sequence, max_sequence_length, feature_dim)
 
-        # Save npy
         ensure_dir(npy_output_dir)
         base_name = os.path.basename(video_filename)
         npy_name = base_name.replace('.mp4', '.npy').replace('.avi', '.npy')
@@ -133,7 +127,6 @@ def process_dataframe_to_npy(
     """
     Process rows and save .npy files. Uses config to determine paths and sizes.
     """
-    # Derive directories from config
     data_dir = config.data_dir
     processed_data_dir = config.processed_data_dir
     local_cache_dir = config.local_cache_dir
@@ -165,7 +158,6 @@ def process_dataframe_to_npy(
             metadata.append(meta)
 
     meta_df = pd.DataFrame(metadata)
-    # Save metadata CSV
     meta_csv_path = os.path.join(processed_data_dir, f"{dataset_name}_processed_metadata.csv")
     ensure_dir(processed_data_dir)
     meta_df.to_csv(meta_csv_path, index=False)

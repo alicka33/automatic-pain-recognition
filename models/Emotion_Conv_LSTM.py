@@ -11,17 +11,11 @@ class ConvSequenceModel(nn.Module):
         self.num_layers = num_layers
         self.num_directions = 2
 
-        # --- WARSTWY PRZESTRZENNE (CNN) ---
-        # Zakładamy, że input_size to liczba cech (np. 294 dla 98 punktów XYZ)
-        # Conv1d oczekuje wejścia: (Batch, Channels, Length)
-        # Traktujemy nasze punkty jako sygnał 1D
         self.conv1 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=3, padding=1)
         self.pool1 = nn.MaxPool1d(kernel_size=2)
 
-        # Obliczamy rozmiar po pooling (input_size // 2, bo kernel_size=2 w pool)
         self.cnn_out_features = 32 * (input_size // 2)
 
-        # --- WARSTWY CZASOWE (LSTM) ---
         self.lstm = nn.LSTM(input_size=self.cnn_out_features, 
                             hidden_size=hidden_size, 
                             num_layers=num_layers,
@@ -33,29 +27,18 @@ class ConvSequenceModel(nn.Module):
         self.fc = nn.Linear(hidden_size * self.num_directions, num_classes)
 
     def forward(self, x):
-        # x shape: (Batch, Seq_Len, Features)
         batch_size, seq_len, n_features = x.shape
 
-        # 1. PRZYGOTOWANIE DLA CNN
-        # Musimy spłaszczyć Batch i Seq_Len, aby potraktować każdą klatkę osobno
-        # Shape: (Batch * Seq_Len, 1, Features)
         x_cnn = x.view(batch_size * seq_len, 1, n_features)
 
-        # 2. EKSTRAKCJA CECH PRZESTRZENNYCH (CNN)
-        x_cnn = F.relu(self.conv1(x_cnn)) # (Batch * Seq_Len, 32, Features)
-        x_cnn = self.pool1(x_cnn)         # (Batch * Seq_Len, 32, Features // 2)
+        x_cnn = F.relu(self.conv1(x_cnn))
+        x_cnn = self.pool1(x_cnn)
 
-        # 3. POWRÓT DO WYMIARÓW CZASOWYCH
-        # Shape: (Batch, Seq_Len, 32 * (Features // 2))
         x_lstm = x_cnn.view(batch_size, seq_len, -1)
 
-        # 4. ANALIZA CZASOWA (LSTM)
-        # out: (Batch, Seq_Len, hidden_size * 2)
         out, _ = self.lstm(x_lstm)
 
-        # 5. AGREGACJA (Średnia po wszystkich klatkach)
         agg_out = torch.mean(out, dim=1)
 
-        # 6. KLASYFIKACJA
         agg_out = self.dropout(agg_out)
         return self.fc(agg_out)

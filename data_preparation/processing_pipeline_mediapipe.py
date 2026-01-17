@@ -8,7 +8,6 @@ from typing import Optional, Tuple, List
 import mediapipe as mp
 from mediapipe.python.solutions import face_mesh as face_mesh
 
-# Constants (adapt as needed)
 REFERENCE_POINT_INDEX = 2
 NUM_LANDMARKS = 478
 INPUT_FEATURE_DIM = NUM_LANDMARKS * 3
@@ -26,7 +25,6 @@ def load_reference_keypoints(ref_path: Path, num_landmarks: int = NUM_LANDMARKS)
         if ref.shape == (num_landmarks, 3):
             return ref, True
         else:
-            # shape mismatch
             return None, False
     except FileNotFoundError:
         return None, False
@@ -75,7 +73,6 @@ def procrustes_analysis(X: np.ndarray, Y: np.ndarray, num_landmarks: int = NUM_L
     Xc = X - X_mean
     Yc = Y - Y_mean
 
-    # Normalize
     X_norm = np.linalg.norm(Xc)
     Y_norm = np.linalg.norm(Yc)
     if X_norm == 0 or Y_norm == 0:
@@ -116,19 +113,16 @@ def visualize_raw_detection(frame_bgr: np.ndarray, landmarks_list, reference_ind
     h, w, _ = frame_bgr.shape
     img = frame_bgr.copy()
 
-    # Draw face detection bounding box
     xs = [lm.x * w for lm in landmarks_list]
     ys = [lm.y * h for lm in landmarks_list]
     x_min, x_max = int(min(xs)), int(max(xs))
     y_min, y_max = int(min(ys)), int(max(ys))
     cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
-    # Draw all landmarks
     for lm in landmarks_list:
         cx, cy = int(lm.x * w), int(lm.y * h)
         cv2.circle(img, (cx, cy), 4, (0, 255, 0), -1)
 
-    # Mark reference point
     ref_lm = landmarks_list[reference_index]
     rcx, rcy = int(ref_lm.x * w), int(ref_lm.y * h)
     cv2.circle(img, (rcx, rcy), 6, (0, 255, 0), -1)
@@ -149,7 +143,6 @@ def visualize_frontalized_points(keypoints: np.ndarray, output_size: Tuple[int, 
         range_coords = np.maximum(range_coords, 1e-6)
     scale = (output_size[0] - 2 * margin) / np.max(range_coords)
 
-    # Center the points on the canvas
     center_offset = np.array([(output_size[0] - margin * 2) / 2, (output_size[1] - margin * 2) / 2])
     center_keypoints = (max_coords + min_coords) / 2
 
@@ -159,7 +152,6 @@ def visualize_frontalized_points(keypoints: np.ndarray, output_size: Tuple[int, 
         if 0 <= px < output_size[0] and 0 <= py < output_size[1]:
             cv2.circle(canvas, (px, py), 2, (0, 255, 0), -1)
 
-    # Draw grid lines thicker
     cv2.line(canvas, (margin, margin), (output_size[0] - margin, margin), (200, 200, 200), 2)
     cv2.line(canvas, (output_size[0] - margin, margin), (output_size[0] - margin, output_size[1] - margin), (200, 200, 200), 2)
     cv2.line(canvas, (output_size[0] - margin, output_size[1] - margin), (margin, output_size[1] - margin), (200, 200, 200), 2)
@@ -172,13 +164,10 @@ def visualize_detections_side_by_side(frame_bgr: np.ndarray, landmarks_list, pro
     """
     Display raw detection and frontalized points side by side.
     """
-    # Get raw detection image with bounding box
     raw_img = visualize_raw_detection(frame_bgr, landmarks_list, reference_index)
 
-    # Get frontalized image
     frontal_img = visualize_frontalized_points(processed_keypoints)
 
-    # Display side by side
     fig, axes = plt.subplots(1, 2, figsize=(16, 6))
 
     axes[0].imshow(raw_img)
@@ -246,7 +235,6 @@ def video_to_feature_sequences(video_path: str, frame_skip: int = 3,
                                     use_frontalization=use_frontalization,
                                     reference_index=REFERENCE_POINT_INDEX)
             except Exception as e:
-                # Skip problematic frames
                 frame_count += 1
                 continue
 
@@ -258,8 +246,6 @@ def video_to_feature_sequences(video_path: str, frame_skip: int = 3,
             sequences.append(feature_vector)
 
             if visualize and not visualization_done:
-                # raw detection (requires original landmarks from MediaPipe results)
-                # We call face_mesh.process again for the raw landmarks for display purposes
                 results = face_mesh.process(cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB))
                 if results and results.multi_face_landmarks:
                     visualize_detections_side_by_side(frame_bgr, results.multi_face_landmarks[0].landmark, processed_keypoints, REFERENCE_POINT_INDEX)
