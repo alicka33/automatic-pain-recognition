@@ -9,39 +9,7 @@ from torch.utils.data import Dataset
 
 
 class PreprocessedDataset(Dataset):
-    """
-    Dataset for processed per-video .npy files.
-
-    Parameters
-    ----------
-    dataset_name : str
-        'train' / 'val' / 'test' - used to find folder and metadata CSV:
-        CSV expected at: os.path.join(processed_data_dir, f'{dataset_name}_processed_metadata.csv')
-        and npy files inside os.path.join(processed_data_dir, dataset_name).
-        CSV must contain columns: 'npy_path' (relative or basename) and 'label'.
-    processed_data_dir : str | Path
-        Root folder where processed outputs are stored.
-    indices : array-like or None
-        If provided, selects a subset of features (columns) AFTER Euclidean reduction
-        (e.g. top-100 indices). Provide as numpy array or list of ints.
-    compute_euclidean : bool
-        If True expects raw 3D coords per frame (shape T x (N_points*3)) and computes Euclidean
-        distances from center_point_index → resulting vector size N_points.
-        If False assumes .npy already contains feature vectors (T x F) and uses them directly.
-    center_point_index : int
-        Index of the central landmark (0..N_points-1) used for distance calculation.
-        Default matches many landmark schemes (33).
-    num_coords_per_point : int
-        Usually 3 (X,Y,Z).
-    max_sequence_length : int
-        Pad/truncate sequences to this length.
-    selected_labels : iterable or None
-        If provided, only rows whose label is in selected_labels will be included.
-    label_map : dict or None
-        If provided, remap labels using label_map[label].
-    pad_value : float
-        Value used to pad shorter sequences.
-    """
+    """Load .npy sequences from processed_data_dir/{dataset_name}/ with optional Euclidean distances."""
 
     def __init__(
         self,
@@ -77,7 +45,6 @@ class PreprocessedDataset(Dataset):
         if self.selected_labels is not None:
             self.df = self.df[self.df['label'].isin(self.selected_labels)].reset_index(drop=True)
 
-        # NPY folder
         self.npy_folder = self.processed_data_dir / self.dataset_name
         if not self.npy_folder.exists():
             raise FileNotFoundError(f"NPY folder not found: {self.npy_folder}")
@@ -132,7 +99,6 @@ class PreprocessedDataset(Dataset):
         row = self.df.iloc[idx]
         npy_path_str = row['npy_path']
 
-        # If stored path is relative, try to resolve in npy_folder; otherwise use absolute
         npy_filename = Path(npy_path_str).name
         npy_full = self.npy_folder / npy_filename
 
@@ -148,7 +114,6 @@ class PreprocessedDataset(Dataset):
 
         sequence_tensor = torch.from_numpy(features.astype(np.float32))  # (T_max, F)
 
-        # Label handling
         label_raw = int(row['label'])
         if self.label_map is not None:
             label = int(self.label_map.get(label_raw, label_raw))

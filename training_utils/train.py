@@ -123,13 +123,11 @@ class Trainer:
             sched_metric_value = val_acc if not self.minimize_monitor else val_loss
             self._step_scheduler(sched_metric_value)
 
-            # record
             self.history['train_loss'].append(train_loss)
             self.history['train_acc'].append(train_acc)
             self.history['val_loss'].append(val_loss)
             self.history['val_acc'].append(val_acc)
 
-            # improvement check
             improved = (current_metric < best_metric) if self.minimize_monitor else (current_metric > best_metric)
             if improved:
                 best_metric = current_metric
@@ -161,7 +159,6 @@ class Trainer:
                 "Dropout (LSTM)": getattr(lstm, 'dropout', 'N/A'),
             })
         else:
-            # Fallback: discover common attributes on the model
             for attr in ('input_size', 'hidden_size', 'num_layers', 'bidirectional', 'dropout'):
                 if hasattr(self.model, attr):
                     pretty = attr.replace('_', ' ').title()
@@ -169,7 +166,6 @@ class Trainer:
 
         model_info['Num Parameters'] = sum(p.numel() for p in self.model.parameters())
 
-        # Optimizer info
         if self.optimizer is not None:
             opt_cfg = self.optimizer.param_groups[0]
             optim_info = {
@@ -180,7 +176,6 @@ class Trainer:
         else:
             optim_info = {"Optimizer": 'N/A'}
 
-        # Training & data params
         batch_size = getattr(self.train_loader, 'batch_size', 'N/A')
         device = getattr(self, 'device', 'N/A')
         training_params = {
@@ -189,7 +184,6 @@ class Trainer:
             "Device": device,
         }
 
-        # Nicely print
         print("\n" + "="*50)
         print("🚀 TRAINING CONFIGURATION")
         print("="*50)
@@ -213,7 +207,6 @@ class Trainer:
         epochs = range(1, len(self.history['train_loss']) + 1)
         plt.figure(figsize=(12, 4))
 
-        # Loss subplot
         plt.subplot(1, 2, 1)
         plt.plot(epochs, self.history['train_loss'], label='train_loss')
         plt.plot(epochs, self.history['val_loss'], label='val_loss')
@@ -222,7 +215,6 @@ class Trainer:
         plt.legend()
         plt.title('Loss')
 
-        # Accuracy subplot (plot train_acc if available)
         plt.subplot(1, 2, 2)
         train_acc = self.history.get('train_acc')
         if train_acc is not None:
@@ -230,7 +222,6 @@ class Trainer:
         plt.plot(epochs, self.history['val_acc'], label='val_acc')
         plt.xlabel('Epoch')
         plt.ylabel('Accuracy')
-        # plt.ylim(0.0, 1.0)
         plt.legend()
         plt.title('Accuracy')
 
