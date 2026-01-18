@@ -68,6 +68,7 @@ class Trainer:
         return avg_loss, acc
 
     def validate_epoch(self) -> Tuple[float, float, list, list]:
+        """Run validation epoch and return (avg_loss, accuracy, labels, predictions)."""
         self.model.eval()
         running_loss = 0.0
         all_labels, all_preds = [], []
@@ -85,6 +86,7 @@ class Trainer:
         return avg_loss, acc, all_labels, all_preds
 
     def _step_scheduler(self, metric_value: float):
+        """Update learning rate scheduler based on metric value."""
         if self.scheduler is None:
             return
         name = self.scheduler.__class__.__name__.lower()
@@ -97,12 +99,14 @@ class Trainer:
             self.scheduler.step()
 
     def save_checkpoint(self, filename: Optional[str] = None) -> str:
+        """Save model state dict to file and return path."""
         filename = filename or os.path.basename(self.model_save_path)
         path = os.path.join(os.path.dirname(self.model_save_path) or ".", filename)
         torch.save(self.model.state_dict(), path)
         return path
 
     def fit(self) -> Tuple[str, Optional[str], Dict[str, List[float]]]:
+        """Train model for num_epochs, save checkpoints, return (final_path, best_path, history)."""
         best_metric = float('inf') if self.minimize_monitor else -float('inf')
         best_epoch = -1
         best_path = None

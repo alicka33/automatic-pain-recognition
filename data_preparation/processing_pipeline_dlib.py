@@ -39,6 +39,7 @@ def init_dlib(predictor_path: str, mean_face_path: Optional[str] = None, weights
 
 
 def landmark_obj_to_array(landmarks_dlib_obj) -> np.ndarray:
+    """Convert dlib landmark object to (68, 2) numpy array."""
     arr = np.zeros((68, 2), dtype=np.float32)
     for i in range(68):
         arr[i, 0] = landmarks_dlib_obj.part(i).x
@@ -47,17 +48,20 @@ def landmark_obj_to_array(landmarks_dlib_obj) -> np.ndarray:
 
 
 def landmark_vector_to_matrix(vec: np.ndarray) -> np.ndarray:
+    """Reshape flattened landmark vector into (N, 2) coordinate matrix."""
     mid = len(vec) // 2
     return np.vstack((vec[:mid], vec[mid:])).T
 
 
 def get_eye_centers(landmarks: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """Compute left and right eye center positions from landmarks."""
     left = landmarks[36:42].mean(axis=0)
     right = landmarks[42:48].mean(axis=0)
     return left, right
 
 
 def procrustes_normalize(landmarks: np.ndarray, template: Optional[np.ndarray] = None) -> np.ndarray:
+    """Normalize landmarks via Procrustes alignment, optionally anchored to template."""
     L = landmarks.copy().astype(np.float32)
     L -= L.mean(axis=0)
     scale = math.sqrt(np.mean(np.sum(L**2, axis=1)))
@@ -83,6 +87,7 @@ def procrustes_normalize(landmarks: np.ndarray, template: Optional[np.ndarray] =
 
 def frontalize_landmarks(landmarks_dlib_obj, frontalization_weights: Optional[np.ndarray],
                          canonical_reference: Optional[np.ndarray]) -> Optional[np.ndarray]:
+    """Apply frontalization to landmarks using pre-trained weights and reference."""
     if frontalization_weights is None:
         return None
     L = landmark_obj_to_array(landmarks_dlib_obj)
@@ -93,10 +98,12 @@ def frontalize_landmarks(landmarks_dlib_obj, frontalization_weights: Optional[np
 
 
 def to_feature_vector(coords: np.ndarray) -> np.ndarray:
+    """Flatten coordinate matrix to 1D feature vector."""
     return coords.flatten().astype(np.float32)
 
 
 def center_by_reference(coords: np.ndarray, ref_index: int = 33) -> Tuple[np.ndarray, np.ndarray]:
+    """Center coordinates by subtracting reference landmark position."""
     ref = coords[ref_index].copy()
     centered = coords - ref
     return centered, ref
@@ -107,6 +114,7 @@ def process_frame(frame_bgr: np.ndarray, detector, predictor, aligner=None,
                   canonical_reference: Optional[np.ndarray] = None,
                   frontalize: bool = True, center_ref: bool = True, ref_index: int = 33,
                   visualize: bool = False) -> Optional[Dict]:
+    """Detect face and extract landmarks from frame, returning raw/frontal/centered coordinates."""
     gray = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2GRAY)
     rects = detector(gray, 1)
     if not rects:
@@ -148,6 +156,7 @@ def video_to_landmark_vectors(video_path: str, detector, predictor, aligner=None
                               canonical_reference: Optional[np.ndarray] = None,
                               frame_skip: int = 5, frontalize: bool = True, center_ref: bool = True,
                               ref_index: int = 33, visualize: bool = False) -> List[np.ndarray]:
+    """Extract landmark feature vectors from video frames."""
     seq = []
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
@@ -170,6 +179,7 @@ def video_to_landmark_vectors(video_path: str, detector, predictor, aligner=None
 
 
 def _visualize_frame(frame_bgr: np.ndarray, raw: np.ndarray, frontal: Optional[np.ndarray], rect: Optional[Tuple[int,int,int,int]] = None):
+    """Display raw and frontalized landmarks side-by-side."""
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))
     # raw overlay
     img_raw = frame_bgr.copy()

@@ -53,15 +53,18 @@ class PreprocessedDataset(Dataset):
             raise ValueError(f"No samples found for dataset '{dataset_name}' (after filtering).")
 
     def __len__(self):
+        """Return number of samples in dataset."""
         return len(self.df)
 
     def _load_npy(self, npy_path: Path) -> np.ndarray:
+        """Load .npy file and return as float32 array."""
         if not npy_path.exists():
             raise FileNotFoundError(f"NPY file missing: {npy_path}")
         arr = np.load(str(npy_path)).astype(np.float32)
         return arr
 
     def _compute_euclidean(self, seq_3d: np.ndarray) -> np.ndarray:
+        """Compute Euclidean distances from center landmark to all landmarks."""
         # seq_3d shape: (T, N_points * num_coords_per_point)
         T, F_full = seq_3d.shape
         if F_full % self.num_coords_per_point != 0:
@@ -77,6 +80,7 @@ class PreprocessedDataset(Dataset):
         return dists
 
     def _select_features(self, features: np.ndarray) -> np.ndarray:
+        """Select subset of features using stored indices."""
         # features shape: (T, F)
         if self.indices is not None:
             if max(self.indices) >= features.shape[1]:
@@ -85,6 +89,7 @@ class PreprocessedDataset(Dataset):
         return features
 
     def _pad_or_truncate(self, arr: np.ndarray) -> np.ndarray:
+        """Pad or truncate sequence to max_sequence_length."""
         # arr shape (T, F)
         T, F = arr.shape
         if T == self.max_sequence_length:
@@ -96,6 +101,7 @@ class PreprocessedDataset(Dataset):
         return arr[: self.max_sequence_length]
 
     def __getitem__(self, idx):
+        """Load sequence and label, apply transformations, return as tensors."""
         row = self.df.iloc[idx]
         npy_path_str = row['npy_path']
 
