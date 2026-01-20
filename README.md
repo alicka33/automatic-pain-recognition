@@ -1,82 +1,89 @@
 # Automatic Pain Recognition
+
 **Bachelor thesis: Automatic pain recognition with the use of computer vision algorithms**
 
-This project focuses on automatic pain recognition from facial expressions using deep learning models trained on facial landmark sequences extracted from video data. The main goal is to investigate whether temporal patterns of facial movements can be effectively used to detect the presence and intensity of pain.
+Research project investigating automatic pain recognition from facial expressions using deep learning. The system analyzes temporal patterns of facial landmarks to detect presence and intensity of pain.
 
-The system supports multiple facial landmark detection pipelines (Dlib and MediaPipe), applies normalization and frontalization techniques, and trains sequential neural network models to perform binary and multi-class pain classification.
-
----
-
-## Project Overview
-
-The project is organized as a modular processing and training pipeline:
-1. Raw video recordings are processed to detect faces and extract facial landmarks.
-2. Landmark coordinates are normalized and optionally frontalized.
-3. Numerical feature sequences (e.g. Euclidean distances between landmarks) are generated.
-4. Deep learning models are trained on the extracted features to classify pain levels.
-5. Training and evaluation results are visualized and stored for further analysis.
-
-Due to the large size of video data and intermediate artifacts, datasets and trained models are stored on Google Drive and loaded dynamically during experiments.
+**Main Focus:** Data processing, feature engineering, and LSTM model training for pain classification.
 
 ---
 
-## Environment Setup
+## Research Overview
 
-All experiments were designed to be executed in the Google Colab environment.
-To begin, open the appropriate notebook in Google Colab and run the cells sequentially as provided.
+### Pipeline
 
-### Common Setup Steps
+```
+Raw Video Data (BioVid, RAVDESS)
+    ↓ (MediaPipe/Dlib landmark extraction)
+Facial Landmark Sequences
+    ↓ (normalization, frontalization)
+Feature Engineering (Euclidean distances, selection)
+    ↓ (train/val/test split)
+LSTM Model Training (Bi-LSTM, Attention-LSTM, STA-LSTM)
+    ↓
+Pain Classification (binary & multiclass)
+    ↓
+Evaluation & Analysis
+```
 
-The following code snippets demonstrate the typical setup required in each notebook:
+### Key Components
 
-#### 1. Mount Google Drive to Access the Dataset
+- **Data Preparation** - Extract facial landmarks from video datasets using MediaPipe/Dlib
+- **Feature Engineering** - Normalize, frontalize, and select discriminative features
+- **Model Training** - Train three LSTM architectures on processed sequences
+- **Evaluation** - Assess model performance and analyze predictions
+
+### Integration with Production
+
+- **pain_detection_app_server/** - FastAPI server deployed on Hugging Face Spaces for inference
+- **pain_detection_app/** - React Native mobile app (open in Android Studio) for video capture and upload
+
+These are included as reference implementations but the main research focus is the training pipeline.
+
+---
+
+## Getting Started
+
+### Setup in Google Colab
+
+All experiments are designed for Google Colab. Clone the repository and run notebooks sequentially:
+
 ```python
 from google.colab import drive
 drive.mount('/content/drive')
-```
 
-#### 2. Clone the Project Repository
-```python
 import os
-os.chdir('/content/drive/My Drive')
+os.chdir('/content')
 !git clone https://github.com/alicka33/automatic-pain-recognition.git
-os.chdir('/content/drive/My Drive/automatic-pain-recognition')
-```
+os.chdir('/content/automatic-pain-recognition')
 
-#### 3. Install Dependencies
-```python
 !pip install -r requirements.txt
 ```
 
-### Notes
+### Detailed Structure
 
-If the notebook requires additional environment configuration (e.g., access to Google Drive, repository cloning, or installation of required libraries), all necessary steps are explicitly specified within the notebook itself. No additional manual configuration is required from the user beyond executing the code in the notebook cells.
-
-
-### Project structure
-
-```bash
+```
 automatic-pain-recognition/
 │
 ├── README.md
 ├── requirements.txt
 │
-├── data/
-│   ├── datasets/
-│   │   ├── BioVid_HeatPain_Database.md
-│   │   └── RAVDESS_Database.md
-│   ├── landmarks/
-│   └── frontalization/
+├── data/                                 # Input datasets & reference data
+│   ├── datasets/                         
+│   │   ├── BioVid_HeatPain_Database.md  # BioVid dataset info
+│   │   └── RAVDESS_Database.md          # RAVDESS dataset info
+│   ├── landmarks/                        # Pre-computed landmark indices
+│   │   └── top_100_important_landmarks_emotions.npy
+│   └── frontalization/                   # Frontalization reference
+│       └── key_points_xyz.npy
 │
-├── data_preparation/
+├── data_preparation/                     # Data processing & feature extraction
 │   ├── process_dataset.py
-│   ├── processing_pipeline_dlib.py
-│   ├── processing_pipeline_mediapipe.py
-│   │
+│   ├── processing_pipeline_dlib.py       # Dlib-based landmark extraction
+│   ├── processing_pipeline_mediapipe.py  # MediaPipe-based landmark extraction
 │   ├── data_division/
 │   │   ├── data_division_BioVid_HeatPain.ipynb
 │   │   └── data_division_RAVDESS.ipynb
-│   │
 │   └── data_preparation/
 │       ├── centering.ipynb
 │       ├── data_preparation_BioVid_HeatPain.ipynb
@@ -85,57 +92,108 @@ automatic-pain-recognition/
 │       ├── face_detection.ipynb
 │       ├── frontalization.ipynb
 │       ├── video_to_frames.ipynb
-│       └── video_to_landmarks_full_pipeline.ipynb
+│       └── video_to_landmarks_full_pipeline.ipynb  # Main pipeline
 │
-├── models/
+├── models/                               # Model architectures
 │   ├── Attention_LSTM.py
 │   ├── Bi_LSTM.py
-│   ├── Emotion_Conv_LSTM.py
-│   └── STA_LSTM.py
+│   ├── STA_LSTM.py
+│   └── Emotion_Conv_LSTM.py
 │
-├── training_utils/
-│   ├── train.py
-│   ├── evaluate.py
-│   └── preprocessed_dataset.py
+├── training_utils/                       # Training & evaluation utilities
+│   ├── train.py                         # Training loop with checkpoint saving
+│   ├── evaluate.py                      # Evaluation metrics
+│   ├── preprocessed_dataset.py          # PyTorch dataset loader
+│   └── __init__.py
 │
-├── pain_detection/
-│   ├── analyse_data/
+├── pain_detection/                       # Model training & analysis
+│   ├── analyse_data/                    # Data analysis notebooks
 │   │   ├── average_landmark_movement_BioVid_HeatPain.ipynb
 │   │   └── landmark_verification_BioVid_HeatPain.ipynb
-│   │
-│   └── training_pain/
-│       ├── training_Attention_LSTM_binary.ipynb
-│       ├── training_Attention_LSTM_binary_1434_coord.ipynb
-│       ├── training_Attention_LSTM_binary_300_coord.ipynb
-│       ├── training_Attention_LSTM_multiclass.ipynb
-│       ├── training_Attention_LSTM_multiclass_1434_coord.ipynb
-│       ├── training_Attention_LSTM_multiclass_300_coord.ipynb
-│       ├── training_Bi_LSTM_binary.ipynb
-│       ├── training_Bi_LSTM_binary_1434_coord.ipynb
-│       ├── training_Bi_LSTM_binary_300_coord.ipynb
-│       ├── training_Bi_LSTM_multiclass.ipynb
-│       ├── training_Bi_LSTM_multiclass_1434_coord.ipynb
-│       ├── training_Bi_LSTM_multiclass_300_coord.ipynb
-│       ├── training_STA_LSTM_binary.ipynb
-│       ├── training_STA_LSTM_binary_1434_coord.ipynb
-│       ├── training_STA_LSTM_binary_300_coord.ipynb
-│       ├── training_STA_LSTM_multiclass.ipynb
-│       ├── training_STA_LSTM_multiclass_1434_coord.ipynb
-│       └── training_STA_LSTM_multiclass_300_coord.ipynb
+│   └── training_pain/                   # Training experiments
+│       ├── training_Attention_LSTM_*.ipynb
+│       ├── training_Bi_LSTM_*.ipynb
+│       ├── training_STA_LSTM_*.ipynb
+│       └── ... (binary & multiclass variants)
 │
 ├── processing_pipeline_verification_on_emotions/
 │   ├── processed_data_verification/
 │   └── training_emotion/
 │
-├── pain_detection_app/
-│
-├── pain_detection_app_server/
-│
-├── tests/
+├── tests/                                # Verification notebooks
 │   ├── test_process_dataset_colab.ipynb
 │   ├── test_processing_pipeline_dlib_colab.ipynb
 │   ├── test_processing_pipeline_mediapipe_colab.ipynb
 │   └── test_training_utils_colab.ipynb
 │
+├── pain_detection_app_server/            # FastAPI inference server
+│   ├── README.md                         # Server documentation
+│   ├── ARCHITECTURE.md
+│   ├── app.py
+│   ├── config.py
+│   ├── Dockerfile                        # Deploy to Hugging Face Spaces
+│   ├── services/
+│   ├── model/                            # Model code & checkpoints
+│   └── tests/
+│
+├── pain_detection_app/                   # React Native mobile app
+│   ├── README.md                         # App documentation
+│   ├── app/                              # Expo screens
+│   ├── components/
+│   ├── services/
+│   └── constants/
+│
 └── .gitignore
 ```
+
+---
+
+## Production Deployment
+
+### Server (Inference)
+
+The trained models can be deployed via the FastAPI server on **Hugging Face Spaces**:
+
+```bash
+cd pain_detection_app_server
+# See pain_detection_app_server/README.md for Hugging Face deployment
+```
+
+Server provides REST API for video upload and pain classification.
+
+### Mobile App
+
+Built with React Native/Expo for Android/iOS. Open project in **Android Studio**:
+
+```bash
+cd pain_detection_app
+# See pain_detection_app/README.md for Android Studio setup
+```
+
+Connect to the deployed server for real-time pain detection.
+
+---
+
+## Data Sources & References
+
+### Landmark Selection & Frontalization
+
+**Landmarks and Feature Selection:**
+All facial landmarks and feature selection methodology come from:
+- **Newtoneiro/automatic-lie-detection** - [https://github.com/Newtoneiro/automatic-lie-detection](https://github.com/Newtoneiro/automatic-lie-detection)
+  - Master's thesis by B. Latoszek (2025)
+  - Warsaw University of Technology
+
+The `data/landmarks/` contains the selected landmark indices from this project.
+
+**Frontalization Techniques:**
+
+*MediaPipe-based Frontalization:*
+The `data/frontalization/key_points_xyz.npy` reference data is used for Procrustes alignment during frontalization.
+- Adapted from the Newtoneiro project above
+
+*Dlib-based Frontalization:*
+- **facial-landmark-frontalization** - [https://github.com/bbonik/facial-landmark-frontalization](https://github.com/bbonik/facial-landmark-frontalization)
+- **dlib-models** - [https://github.com/davisking/dlib-models](https://github.com/davisking/dlib-models)
+
+---
