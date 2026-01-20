@@ -108,8 +108,6 @@ If you don't have access to a physical device, you can use an emulator, but note
 | `npm run android` | Run on Android emulator/device |
 | `npm run ios` | Run on iOS simulator (macOS only) |
 | `npm run web` | Run in web browser |
-| `npm test` | Run tests |
-| `npm run lint` | Check code quality |
 
 ---
 
@@ -119,24 +117,21 @@ If you don't have access to a physical device, you can use an emulator, but note
 pain_detection_app/
 ├── app/                     # Application screens (Expo Router)
 │   ├── (pages)/            # Tab navigation screens
+│   │   ├── _layout.tsx     # Pages layout
 │   │   ├── index.tsx       # Home screen
 │   │   ├── camera.tsx      # Camera screen
-│   │   ├── record.tsx      # Recording screen
+│   │   ├── record.tsx      # Video recording & pain analysis
 │   │   └── library.tsx     # Media library screen
 │   └── _layout.tsx         # Root layout
 ├── assets/                 # Images, fonts, icons
 ├── components/             # Reusable UI components
-├── constants/              # Colors and constants
-└── android/                # Native Android code
+│   └── ThemedText.tsx      # Themed text component
+├── constants/              # App configuration
+│   ├── Colors.ts           # Color themes
+│   └── api.ts              # API URLs and tokens
+├── services/               # External service integrations
+│   └── videoAnalysis.ts    # Pain detection API calls
+└── package.json            # Dependencies and scripts
 ```
 
 ---
-
-## Required Permissions
-
-The app will request these permissions when you first use the features:
-
-- **Camera** - To take photos and videos
-- **Microphone** - To record audio
-- **Photo Library** - To save and access media files
-
