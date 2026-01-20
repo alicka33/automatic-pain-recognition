@@ -39,7 +39,7 @@ drive.mount('/content/drive')
 ```python
 import os
 os.chdir('/content/drive/My Drive')
-!git clone https://github.com/jonczyk/automatic-pain-recognition.git
+!git clone https://github.com/alicka33/automatic-pain-recognition.git
 os.chdir('/content/drive/My Drive/automatic-pain-recognition')
 ```
 

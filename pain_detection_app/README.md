@@ -22,7 +22,7 @@ Follow these steps to run the app on your device:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/automatic-pain-recognition.git
+   git clone https://github.com/alicka33/automatic-pain-recognition.git
    ```
 2. Navigate to the app folder:
    ```bash
