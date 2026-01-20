@@ -18,13 +18,15 @@ Follow these steps to run the app on your device:
    npm --version
    ```
 
-### Step 2: Download the Project
+### Step 2: Clone and Navigate to the App
 
-1. Download or clone this repository to your computer
-2. Open a terminal/command prompt
-3. Navigate to the project folder:
+1. Clone the repository:
    ```bash
-   cd mobile_pain_reco
+   git clone https://github.com/YOUR_USERNAME/automatic-pain-recognition.git
+   ```
+2. Navigate to the app folder:
+   ```bash
+   cd automatic-pain-recognition/pain_detection_app
    ```
 
 ### Step 3: Install Project Dependencies
@@ -114,7 +116,7 @@ If you don't have access to a physical device, you can use an emulator, but note
 ## Project Structure
 
 ```
-mobile_pain_reco/
+pain_detection_app/
 ├── app/                     # Application screens (Expo Router)
 │   ├── (pages)/            # Tab navigation screens
 │   │   ├── index.tsx       # Home screen
