@@ -1,6 +1,6 @@
 # Automatic Pain Recognition
 
-**Bachelor thesis: Automatic pain recognition with the use of computer vision algorithms**
+**Bachelor thesis: Application of computer vision algorithms for automatic pain recognition in patients**
 
 Research project investigating automatic pain recognition from facial expressions using deep learning. The system analyzes temporal patterns of facial landmarks to detect presence and intensity of pain.
 
