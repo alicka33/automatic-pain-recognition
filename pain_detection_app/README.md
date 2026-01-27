@@ -100,17 +100,6 @@ If you don't have access to a physical device, you can use an emulator, but note
 
 ---
 
-## Available Commands
-
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start the Expo development server |
-| `npm run android` | Run on Android emulator/device |
-| `npm run ios` | Run on iOS simulator (macOS only) |
-| `npm run web` | Run in web browser |
-
----
-
 ## Project Structure
 
 ```

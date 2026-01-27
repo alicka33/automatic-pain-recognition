@@ -1,14 +1,3 @@
----
-title: Pain Detection Server
-emoji: 😃
-colorFrom: blue
-colorTo: green
-sdk: docker
-app_port: 7860
-license: mit
-short_description: FastAPI server for pain detection from facial video.
----
-
 # Pain Detection Server
 
 Real-time pain classification API based on facial video analysis using MediaPipe and LSTM models.
