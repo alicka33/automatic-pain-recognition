@@ -15,7 +15,9 @@ class ProcessingConfig:
 
     dataset_subdir: str = 'data/BioVid_HeatPain/'
     processed_subdir: str = 'data/BioVid_HeatPain_processed_478_xyz_frontalized/'
+    reference_keypoints_path: str = 'data/key_points_xyz.npy'
 
+    use_frontalization: bool = True
     local_cache_dir: str = '/content/temp_cache'
 
     max_sequence_length: int = 46
@@ -28,6 +30,10 @@ class ProcessingConfig:
     @property
     def processed_data_dir(self) -> str:
         return os.path.join(self.colab_root, self.processed_subdir)
+
+    @property
+    def reference_path(self) -> str:
+        return os.path.join(self.colab_root, self.reference_keypoints_path)
 
 
 def ensure_dir(path: str) -> None:
@@ -71,6 +77,7 @@ def process_single_video_row(
     row: pd.Series,
     data_dir: str,
     npy_output_dir: str,
+    processed_data_root: str,
     local_cache_dir: str,
     video_processor: Callable[..., List[np.ndarray]],
     frame_skip: int = 3,
@@ -103,7 +110,7 @@ def process_single_video_row(
         npy_path = os.path.join(npy_output_dir, npy_name)
         np.save(npy_path, final_seq)
 
-        rel_path = os.path.relpath(npy_path, PROCESSED_DATA_DIR)
+        rel_path = os.path.relpath(npy_path, processed_data_root)
         return {'npy_path': rel_path, 'label': label}
 
     except Exception as e:
@@ -147,6 +154,7 @@ def process_dataframe_to_npy(
             row=row,
             data_dir=data_dir,
             npy_output_dir=npy_output_dir,
+            processed_data_root=processed_data_dir,
             local_cache_dir=local_cache_dir,
             video_processor=video_processor,
             frame_skip=frame_skip,

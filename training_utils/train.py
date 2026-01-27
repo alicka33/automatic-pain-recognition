@@ -189,7 +189,7 @@ class Trainer:
         }
 
         print("\n" + "="*50)
-        print("🚀 TRAINING CONFIGURATION")
+        print("TRAINING CONFIGURATION")
         print("="*50)
 
         print("\n--- Model Architecture ---")
