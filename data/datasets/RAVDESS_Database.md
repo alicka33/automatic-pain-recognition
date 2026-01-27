@@ -1,11 +1,11 @@
 ## Dataset: RAVDESS
 
-W projekcie wykorzystano zbiór **RAVDESS (Ryerson Audio-Visual Database of Emotional Speech and Song)**, który zawiera zsynchronizowane nagrania wideo oraz dźwiękowe prezentujące ekspresję emocji przez aktorów. Zbiór obejmuje **8 klas emocji**: neutralną, spokojną (*calm*), radosną (*happy*), smutną (*sad*), złą (*angry*), przestraszoną (*fearful*), zaskoczoną (*surprised*) oraz zniesmaczoną (*disgust*).
+This project uses the **RAVDESS (Ryerson Audio-Visual Database of Emotional Speech and Song)**, which provides synchronized video and audio recordings of actors expressing emotions. The dataset covers **8 emotion classes**: neutral, calm, happy, sad, angry, fearful, surprised, and disgust.
 
-W niniejszej pracy wykorzystano część zbioru zawierającą **nagrania wideo wraz z mową**, które posłużyły do walidacji poprawności potoku ekstrakcji cech mimicznych oraz oceny zdolności modeli sekwencyjnych do rozpoznawania emocji na podstawie dynamiki punktów charakterystycznych twarzy.
+We use the subset with **spoken-video recordings** to validate the facial feature extraction pipeline and to assess sequence models' ability to recognize emotions from facial landmark dynamics.
 
-Zbiór RAVDESS jest **ogólnodostępny** i może być swobodnie wykorzystywany do celów badawczych i edukacyjnych.
+RAVDESS is **publicly available** and may be freely used for research and educational purposes.
 
-Więcej informacji:
+More information:
 https://zenodo.org/record/1188976
 

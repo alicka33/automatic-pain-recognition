@@ -1,11 +1,10 @@
 ## Dataset: BioVid Heat Pain Database
 
-W projekcie wykorzystano zbiór **BioVid Heat Pain Database**, który zawiera wielomodalne nagrania przedstawiające reakcje uczestników na bodźce cieplne o różnym natężeniu bólu. Zbiór obejmuje zsynchronizowane dane wideo twarzy, sygnały fizjologiczne oraz subiektywne poziomy bólu, co czyni go jednym z najczęściej wykorzystywanych zestawów danych w badaniach nad automatyczną detekcją bólu.
+This project uses the **BioVid Heat Pain Database**, a multimodal collection capturing participants' responses to thermal stimuli at varying pain intensities. The dataset provides synchronized facial video, physiological signals, and subjective pain ratings, making it a widely used benchmark for automatic pain detection research.
 
-W niniejszej pracy wykorzystano **część Part A zbioru BioVid**, obejmującą nagrania wideo twarzy uczestników wraz z pięciostopniową skalą natężenia bólu. Dane te stanowiły główne źródło sekwencji czasowych do ekstrakcji punktów charakterystycznych twarzy oraz do trenowania i ewaluacji modeli sekwencyjnych w zadaniu detekcji bólu.
+We rely on **Part A of BioVid**, which includes facial video recordings with a five-level pain intensity scale. These sequences serve as the primary source for extracting facial landmarks and for training and evaluating sequence models for pain detection.
 
-Zbiór BioVid Heat Pain Database **nie jest publicznie dostępny**. Dostęp do danych wymaga złożenia wniosku oraz uzyskania zgody od twórców bazy danych.
+The BioVid Heat Pain Database **is not publicly available**. Access requires submitting a request and obtaining approval from the dataset creators.
 
-
-Więcej informacji na temat zbioru danych:
+More information:
 https://www.nit.ovgu.de/nit/en/BioVid-p-1358.html
