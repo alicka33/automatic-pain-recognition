@@ -38,14 +38,32 @@ npm install
 
 This will download all required packages (may take a few minutes).
 
-### Step 4: Install Expo Go on Your Phone
+**Note:** If `npm install` fails due to dependency conflicts, you may need to use:
+```bash
+npm install --force
+```
+
+### Step 4: Configure the API Token (Required)
+
+The pain detection server is private and requires authentication. You need to create a `.env` file with the access token:
+
+1. Create a file named `.env` in the `pain_detection_app` folder
+2. **Reach out to me to get the API token** if you want to clone and run this project
+3. Add the token to your `.env` file:
+   ```
+   HUGGINGFACE_TOKEN=your_token_here
+   ```
+
+> **Note:** The server is kept private for security reasons. Contact the repository owner for access credentials.
+
+### Step 5: Install Expo Go on Your Phone
 
 Download the **Expo Go** app on your mobile device:
 
 - **Android**: [Get it on Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent)
 - **iOS**: [Download from App Store](https://apps.apple.com/app/expo-go/id982107779)
 
-### Step 5: Start the Development Server
+### Step 6: Start the Development Server
 
 In your terminal (inside the project folder), run:
 ```bash
@@ -54,7 +72,7 @@ npm run start
 
 A QR code will appear in your terminal.
 
-### Step 6: Run the App on Your Phone
+### Step 7: Run the App on Your Phone
 
 1. **Make sure your phone and computer are on the same WiFi network**
 2. Open the **Expo Go** app on your phone
