@@ -74,19 +74,6 @@ Place your trained checkpoint in `model/model_paths/` and set `MODEL_CHECKPOINT_
 - Reference keypoints: `data/frontalization/key_points_xyz.npy`
 - Feature indices: `data/landmarks/top_100_important_landmarks_emotions.npy`
 
-### 4. Run the Server
-
-```bash
-python app.py
-```
-
-Or with uvicorn directly:
-```bash
-uvicorn app:app --host 0.0.0.0 --port 7860 --reload
-```
-
-The server will start on `http://0.0.0.0:7860`
-
 ## API Endpoints
 
 ### `GET /`
@@ -131,14 +118,14 @@ Main endpoint for pain classification.
 **Response:**
 ```json
 {
-  "painLevel": "PAIN",
+  "painLevel": "NO_PAIN",
   "confidence": 0.87,
-  "description": "Pain Detected. Signs of discomfort present.",
   "numFrames": 23,
   "probabilities": {
     "NO_PAIN": 0.13,
-    "PAIN": 0.87
-  }
+    "VERY_STRONG_PAIN": 0.87
+  },
+  "description": "No Pain Detected. No signs of discomfort observed."
 }
 ```
 
