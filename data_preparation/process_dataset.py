@@ -83,7 +83,9 @@ def process_single_video_row(
     frame_skip: int = 3,
     max_sequence_length: int = 46,
     feature_dim: int = 1434,
-    visualize: bool = False
+    visualize: bool = False,
+    reference_keypoints: Optional[np.ndarray] = None,
+    use_frontalization: bool = False
 ) -> Optional[Dict]:
     """
     Process a single DataFrame row with keys 'video_path' and 'label'.
@@ -96,7 +98,7 @@ def process_single_video_row(
 
     try:
         local_temp_path = copy_to_local_cache(drive_video_path, local_cache_dir)
-        frames = video_processor(video_path=local_temp_path, frame_skip=frame_skip, visualize=visualize)
+        frames = video_processor(video_path=local_temp_path, frame_skip=frame_skip, reference_keypoints_3d=reference_keypoints, use_frontalization=use_frontalization, visualize=visualize)
         if frames:
             sequence = np.stack(frames)
         else:
@@ -140,6 +142,13 @@ def process_dataframe_to_npy(
     max_sequence_length = config.max_sequence_length
     feature_dim = config.feature_dim
 
+    reference_keypoints = None
+    if config.use_frontalization and os.path.exists(config.reference_path):
+        reference_keypoints = np.load(config.reference_path)
+        print(f"[INFO] Loaded reference keypoints from {config.reference_path}")
+    elif config.use_frontalization:
+        print(f"[WARNING] Frontalization enabled but reference keypoints not found at {config.reference_path}")
+
     npy_output_dir = os.path.join(processed_data_dir, dataset_name)
     ensure_dir(npy_output_dir)
     ensure_dir(local_cache_dir)
@@ -160,7 +169,9 @@ def process_dataframe_to_npy(
             frame_skip=frame_skip,
             max_sequence_length=max_sequence_length,
             feature_dim=feature_dim,
-            visualize=visualize
+            visualize=visualize,
+            reference_keypoints=reference_keypoints,
+            use_frontalization=config.use_frontalization
         )
         if meta is not None:
             metadata.append(meta)
