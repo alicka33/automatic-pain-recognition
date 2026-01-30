@@ -28,8 +28,8 @@ Evaluation & Analysis
 
 ### Key Components
 
-- **Data Preparation** - Extract facial landmarks from video datasets using MediaPipe/Dlib
-- **Feature Engineering** - Normalize, frontalize, and select discriminative features
+- **Data Preparation** - Extract facial landmarks from video datasets using MediaPipe/Dlib, frontalize, center
+- **Feature Engineering** - optionally compute Euclidean distances, select discriminative features
 - **Model Training** - Train three LSTM architectures on processed sequences
 - **Evaluation** - Assess model performance and analyze predictions
 
