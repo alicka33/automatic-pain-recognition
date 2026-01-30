@@ -16,7 +16,7 @@ Research project investigating automatic pain recognition from facial expression
 Raw Video Data (BioVid, RAVDESS)
     ↓ (MediaPipe/Dlib landmark extraction)
 Facial Landmark Sequences
-    ↓ (normalization, frontalization)
+    ↓ (processing: frontalization, centering)
 Feature Engineering (Euclidean distances, selection)
     ↓ (train/val/test split)
 LSTM Model Training (Bi-LSTM, Attention-LSTM, STA-LSTM)
