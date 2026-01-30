@@ -43,18 +43,29 @@ This will download all required packages (may take a few minutes).
 npm install --force
 ```
 
-### Step 4: Configure the API Token (Required)
+### Step 4: Choose Your Server Setup
 
-The pain detection server is private and requires authentication. You need to create a `.env` file with the access token:
+You can either use the author's private Space (token required) or deploy your own Space.
 
-1. Create a file named `.env` in the `pain_detection_app` folder
-2. **Reach out to me to get the API token** if you want to clone and run this project
+#### Option A: Use the Author's Private Space (Token Required)
+
+1. **Reach out to me to get the API token** if you want to run this project
+2. Create a file named `.env` in the `pain_detection_app` folder
 3. Add the token to your `.env` file:
    ```
-   HUGGINGFACE_TOKEN=your_token_here
+   EXPO_PUBLIC_HUGGING_FACE_TOKEN=your_token_here
    ```
 
-> **Note:** The server is kept private for security reasons. Contact the repository owner for access credentials.
+#### Option B: Use Your Own Hugging Face Space
+
+1. Deploy the server using the instructions in [pain_detection_app_server/README.md](pain_detection_app_server/README.md)
+2. Set your Space URL in `constants/api.ts`:
+   ```ts
+   export const API_UPLOAD_URL = 'https://yourusername-yourspacename.hf.space/upload-video';
+   ```
+3. If your Space is private, add your token to `.env` as above
+
+> **Note:** If you use a private Space, a token is required. Public Spaces do not require a token.
 
 ### Step 5: Install Expo Go on Your Phone
 

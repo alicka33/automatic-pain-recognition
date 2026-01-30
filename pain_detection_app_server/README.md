@@ -31,48 +31,125 @@ LSTM Model Inference
 Pain Classification Result
 ```
 
-## Setup
+## Deployment on Hugging Face Spaces
 
-### 1. Install Dependencies
+This server is designed to run on Hugging Face Spaces for easy GPU access and cloud deployment.
+
+### Prerequisites
+- Hugging Face account (free)
+- Your trained model checkpoint
+- GitHub repository with this code
+
+### Steps to Deploy
+
+1. **Create a new Space on Hugging Face:**
+   - Go to [huggingface.co/spaces](https://huggingface.co/spaces)
+   - Click "Create new Space"
+   - Choose "Docker" as the runtime
+   - Set repository visibility to **Private** (if you want to restrict access)
+
+2. **Add your model files:**
+   - Upload your trained model checkpoint to `model/model_paths/`
+   - Ensure all data files (keypoints, landmarks) are included in the repo
+
+3. **Configure the server in `config.py`:**
+   ```python
+   # Model checkpoint path (must match your uploaded file)
+   MODEL_CHECKPOINT_PATH = MODEL_DIR / "model_paths/your_model.pt"
+   
+   # Model architecture (must match training configuration)
+   NUM_FEATURES = 300      # e.g., 100, 300, or 1434
+   NUM_CLASSES = 2         # 2 for binary, 5 for multiclass
+   HIDDEN_SIZE = 128
+   NUM_LAYERS = 2
+   MODEL_TYPE = "sta_lstm" # "bi_lstm", "attention_lstm", or "sta_lstm"
+   ```
+
+4. **Deploy:**
+   - Hugging Face will automatically detect the Dockerfile and build the container
+   - Once deployed, you'll get a URL: `https://yourusername-yourspacename.hf.space`
+
+### Connect the App to the Server
+
+Configure your React Native app (`pain_detection_app/`) to connect to the deployed server.
+
+#### Option A: Private Space (Requires Authentication)
+
+**Current setup** - Server is private and needs a token:
+
+1. **Set the server URL in `constants/api.ts`:**
+   ```typescript
+   export const API_UPLOAD_URL = 'https://yourusername-yourspacename.hf.space/upload-video';
+   export const HUGGING_FACE_TOKEN = process.env.EXPO_PUBLIC_HUGGING_FACE_TOKEN;
+   ```
+
+2. **Get your Hugging Face token:**
+   - Go to [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+   - Create a new token with **read** access
+
+3. **Add token to app environment:**
+   - Create a `.env` file in the `pain_detection_app` folder:
+     ```
+     EXPO_PUBLIC_HUGGING_FACE_TOKEN=hf_your_token_here
+     ```
+
+4. **The app automatically sends the token** in `services/videoAnalysis.ts`:
+   ```typescript
+   const response = await fetch(API_UPLOAD_URL, {
+     method: 'POST',
+     headers: { Authorization: `Bearer ${HUGGING_FACE_TOKEN}` },
+     body: formData,
+   });
+   ```
+
+#### Option B: Public Space (No Authentication)
+
+If you make your Space public, you can simplify the app:
+
+1. **Update `constants/api.ts`:**
+   ```typescript
+   export const API_UPLOAD_URL = 'https://yourusername-yourspacename.hf.space/upload-video';
+   // No token needed for public spaces
+   ```
+
+2. **Update `services/videoAnalysis.ts`** to remove authentication:
+   ```typescript
+   const response = await fetch(API_UPLOAD_URL, {
+     method: 'POST',
+     // No Authorization header needed
+     body: formData,
+   });
+   ```
+
+3. **No `.env` file needed** - public spaces are accessible without tokens
+
+### Testing the Deployment
+
+#### Testing a Private Space
 
 ```bash
-cd pain_detection_app_server
-pip install -r requirements.txt
+# Health check with token
+curl -H "Authorization: Bearer hf_your_token_here" \
+  https://yourusername-yourspacename.hf.space/health
+
+# Test with a video file
+curl -H "Authorization: Bearer hf_your_token_here" \
+  -X POST \
+  -F "video=@/path/to/test_video.mp4;type=video/mp4" \
+  https://yourusername-yourspacename.hf.space/upload-video
 ```
 
-Required packages:
-- fastapi
-- uvicorn
-- torch
-- numpy
-- opencv-python
-- mediapipe
-- pandas
+#### Testing a Public Space
 
-### 2. Configure the Server
+```bash
+# Health check (no token needed)
+curl https://yourusername-yourspacename.hf.space/health
 
-Edit `config.py` to match your trained model:
-
-```python
-# Model checkpoint path
-MODEL_CHECKPOINT_PATH = MODEL_DIR / "best_pain_model.pt"
-
-# Model architecture (must match training)
-NUM_FEATURES = 100  # or 1434, or 300 or depending on your setup
-NUM_CLASSES = 2     # 2 for binary, 5 for multiclass
-HIDDEN_SIZE = 128
-NUM_LAYERS = 2
-
-# Choose model type
-MODEL_TYPE = "bi_lstm"  # or "attention_lstm" or "sta_lstm"
+# Test with a video file
+curl -X POST \
+  -F "video=@/path/to/test_video.mp4;type=video/mp4" \
+  https://yourusername-yourspacename.hf.space/upload-video
 ```
-
-### 3. Add Model Files
-
-Place your trained checkpoint in `model/model_paths/` and set `MODEL_CHECKPOINT_PATH` in `config.py` (defaults to `testing_new_code_sta_lstm_2_classes_300_coord.pt`). Assets included:
-- Model checkpoint examples: `model/model_paths/testing_new_code_sta_lstm_*.pt`
-- Reference keypoints: `data/frontalization/key_points_xyz.npy`
-- Feature indices: `data/landmarks/top_100_important_landmarks_emotions.npy`
 
 ## API Endpoints
 
@@ -84,8 +161,12 @@ Health check endpoint.
 {
   "message": "Pain Detection Server is running",
   "status": "ready",
-  "model_type": "bi_lstm",
-  "num_classes": 2
+  "model_type": "sta_lstm",
+  "num_classes": 2,
+  "endpoints": {
+    "upload": "/upload-video",
+    "health": "/health"
+  }
 }
 ```
 
@@ -97,12 +178,14 @@ Detailed server status.
 {
   "status": "healthy",
   "model_loaded": true,
-  "device": "cuda",
+  "device": "cpu",
   "config": {
-    "model_type": "bi_lstm",
+    "model_type": "sta_lstm",
     "num_classes": 2,
-    "num_features": 100,
-    "max_sequence_length": 46
+    "num_features": 300,
+    "max_sequence_length": 200,
+    "use_frontalization": true,
+    "compute_euclidean": false
   }
 }
 ```
@@ -118,14 +201,14 @@ Main endpoint for pain classification.
 **Response:**
 ```json
 {
-  "painLevel": "NO_PAIN",
-  "confidence": 0.87,
-  "numFrames": 23,
+  "painLevel": "VERY_STRONG_PAIN",
+  "confidence": 0.8928694725036621,
+  "numFrames": 46,
   "probabilities": {
-    "NO_PAIN": 0.13,
-    "VERY_STRONG_PAIN": 0.87
+    "NO_PAIN": 0.1071305125951767,
+    "VERY_STRONG_PAIN": 0.8928694725036621
   },
-  "description": "No Pain Detected. No signs of discomfort observed."
+  "description": "Very Strong Pain. Critical condition requiring immediate medical intervention."
 }
 ```
 
